@@ -4,8 +4,13 @@
   </head>
   <body>
     <h1>Avalon: The Resistance</h1>
+    <form id="name-form">
+      <label for="name-input">Choose a name:</label><br>
+      <input type="text" id="name-input" placeholder="Enter your name here"><br>
+      <button type="submit">Submit</button>
+    </form>
     <div id="role-info"></div>
-    <button id="start-game-button">Start game</button>
+    <button id="start-game-button" disabled>Start game</button>
     <script src="https://www.gstatic.com/firebasejs/7.22.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.22.0/firebase-database.js"></script>
     <script>
@@ -17,6 +22,10 @@
 
       // Get a reference to the database
       var database = firebase.database();
+
+      // Get the name form and input field
+      const nameForm = document.querySelector('#name-form');
+      const nameInput = document.querySelector('#name-input');
 
       // Get the start game button
       const startGameButton = document.querySelector('#start-game-button');
@@ -38,6 +47,22 @@
           'secret': 'Merlin'
         }
       };
+
+      // Set up an event listener for the name form submission
+      nameForm.addEventListener('submit', e => {
+        e.preventDefault();
+
+        // Get the player's name
+        const name = nameInput.value;
+
+        // Add the player's name to the database
+        database.ref(`players/${getPlayerId()}`).set({
+          name: name
+        });
+
+        // Enable the start game button
+        startGameButton.disabled = false;
+      });
 
       // Set up an event listener for the start game button
       startGameButton.addEventListener('click', () => {
