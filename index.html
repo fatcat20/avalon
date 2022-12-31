@@ -11,6 +11,9 @@
     </form>
     <div id="role-info"></div>
     <button id="start-game-button" disabled>Start game</button>
+    <button id="view-database-button">View database</button>
+    <button id="clear-database-button">Clear database</button>
+    <div id="database-viewer"></div>
     <script src="https://www.gstatic.com/firebasejs/7.22.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.22.0/firebase-database.js"></script>
     <script type="module">
@@ -24,6 +27,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyAergyCUz6reUg06UGYkFpx4PWsxtoKToc",
             authDomain: "avalon-d9d58.firebaseapp.com",
+            databaseURL: "https://avalon-d9d58-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "avalon-d9d58",
             storageBucket: "avalon-d9d58.appspot.com",
             messagingSenderId: "611193467185",
@@ -31,61 +35,78 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-    </script>
-    <script>
-      // Get a reference to the database
-      var database = firebase.database();
+        // const app = initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
 
-      // Get the name form and input field
-      const nameForm = document.querySelector('#name-form');
-      const nameInput = document.querySelector('#name-input');
+        // Get a reference to the database
+        var database = firebase.database();
 
-      // Get the start game button
-      const startGameButton = document.querySelector('#start-game-button');
+        // Get the name form and input field
+        const nameForm = document.querySelector('#name-form');
+        const nameInput = document.querySelector('#name-input');
 
-      // Get the role info element
-      const roleInfo = document.querySelector('#role-info');
+        // Get the start game button
+        // const startGameButton = document.querySelector('#start-game-button');
+        const startGameButton = document.getElementById('start-game-button');
 
-      // Define the roles and secret information
-      const roles = {
+        // Get the role info element
+        const roleInfo = document.querySelector('#role-info');
+
+        // Get the view database button
+        const viewDatabaseButton = document.querySelector('#view-database-button');
+
+        // Get the clear database button
+        const clearDatabaseButton = document.querySelector('#clear-database-button');
+
+        // Get the database viewer element
+        const databaseViewer = document.querySelector('#database-viewer');
+
+        // Define the roles and secret information
+        const roles = {
         'Resistance': {},
         'Spy': {},
         'Merlin': {
-          'secret': 'Mordred'
+            'secret': 'Mordred'
         },
         'Perceval': {
-          'secret': 'Morgana'
+            'secret': 'Morgana'
         },
         'Assassin': {
-          'secret': 'Merlin'
+            'secret': 'Merlin'
         }
-      };
+        };
 
-      // Set up an event listener for the name form submission
-      nameForm.addEventListener('submit', e => {
-        e.preventDefault();
+// Set up an event listener for the name form
+nameForm.addEventListener('submit', event => {
+        // Prevent the form from being submitted
+        event.preventDefault();
 
-        // Get the player's name
+        // Get the name input
         const name = nameInput.value;
 
-        // Add the player's name to the database
-        database.ref(`players/${getPlayerId()}`).set({
-          name: name
+        // Add the name to the database
+        database.ref('players').push({
+          'name': name
         });
 
-        console.log(name);
+        // Clear the name input field
+        nameInput.value = '';
+
         // Enable the start game button
         startGameButton.disabled = false;
       });
 
-      // Set up an event listener for the start game button
-      startGameButton.addEventListener('click', () => {
-        // Generate random roles for all players
-        const playerRoles = generatePlayerRoles();
+    //   // Set up an event listener for the start game button
+    //   startGameButton.addEventListener('click', () => {
+    //     // Generate random roles for all players
+    //     const playerRoles = generatePlayerRoles();
 
-        // Add the player roles to the database
-        database.ref('playerRoles').set(playerRoles);
+    //     // Add the player roles to the database
+    //     database.ref('playerRoles').set(playerRoles);
+    //   });
+    // Add an event listener to the button
+    startGameButton.addEventListener('click', () => {
+        setPlayerRoles();
       });
 
       // Listen for changes to the player roles in the database
@@ -103,25 +124,101 @@
         }
       });
 
-      function generatePlayerRoles() {
-        // Replace this with your own logic for generating random roles for all players
-        return {
-          'player1': getRandomRole(),
-          'player2': getRandomRole(),
-          'player3': getRandomRole(),
-          'player4': getRandomRole(),
-          'player5': getRandomRole()
-        };
+      // Set up an event listener for the view database button
+      viewDatabaseButton.addEventListener('click', () => {
+        // Clear the database viewer element
+        databaseViewer.innerHTML = '';
+        console.log("viewDatabaseButton clicked");
+        // Get the data from the players node
+        database.ref('players').once('value').then(snapshot => {
+          // Get the players data
+          const players = snapshot.val();
+
+          // Add a heading to the database viewer element
+          databaseViewer.innerHTML += '<h2>Players</h2>';
+
+          // Iterate over the players data and add it to the database viewer element
+          for (let playerId in players) {
+            const player = players[playerId];
+            databaseViewer.innerHTML += `<p>${player.name}</p>`;
+          }
+        });
+
+        // Get the data from the playerRoles node
+        database.ref('playerRoles').once('value').then(snapshot => {
+          // Get the player roles data
+          const playerRoles = snapshot.val();
+
+          // Add a heading to the database viewer element
+          databaseViewer.innerHTML += '<h2>Player roles</h2>';
+
+// Iterate over the player roles data and add it to the database viewer element
+for (let playerId in playerRoles) {
+            const role = playerRoles[playerId];
+            databaseViewer.innerHTML += `<p>${playerId}: ${role}</p>`;
+          }
+        });
+      });
+
+      // Set up an event listener for the clear database button
+      clearDatabaseButton.addEventListener('click', () => {
+        // Clear the players data in the database
+        database.ref('players').remove();
+
+        // Clear the player roles data in the database
+        database.ref('playerRoles').remove();
+      });
+
+        // Generate random roles for all players and return a Promise
+        function generatePlayerRoles() {
+        return new Promise((resolve, reject) => {
+          // Get the names of all the players
+          database.ref('players').once('value').then(snapshot => {
+            const players = snapshot.val();
+            const playerNames = Object.values(players).map(player => player.name);
+
+            // Shuffle the names
+            shuffle(playerNames);
+
+            // Assign roles to the players
+            const playerRoles = {};
+            playerNames.forEach((playerName, index) => {
+              playerRoles[getPlayerId(playerName)] = Object.keys(roles)[index % Object.keys(roles).length];
+            });
+
+            // Resolve the Promise with the player roles data
+            resolve(playerRoles);
+          });
+        });
       }
 
-      function getPlayerId() {
-        // Replace this with your own logic for generating a unique player ID
-        return 'player1';
+      // Set the player roles data in the database
+      function setPlayerRoles() {
+        generatePlayerRoles().then(playerRoles => {
+          database.ref('playerRoles').set(playerRoles);
+        });
       }
 
-      function getRandomRole() {
-        // Replace this with your own logic for selecting a random role
-        return Object.keys(roles)[Math.floor(Math.random() * Object.keys(roles).length)];
+      // Shuffle an array in place
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+    // Get the unique ID for a player
+    function getPlayerId(name) {
+        // Find the player with the specified name
+        database.ref('players').once('value').then(snapshot => {
+          const players = snapshot.val();
+          for (let playerId in players) {
+            if (players[playerId].name === name) {
+              console.log(playerId); // Debugging code
+              return playerId;
+            }
+          }
+        });
       }
     </script>
   </body>
