@@ -14,11 +14,24 @@
     <script src="https://www.gstatic.com/firebasejs/7.22.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.22.0/firebase-database.js"></script>
     <script>
-      // Initialize Firebase
-      var firebaseConfig = {
-        // Add your Firebase project configuration here
-      };
-      firebase.initializeApp(firebaseConfig);
+        // npm install -g firebase-tools
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAergyCUz6reUg06UGYkFpx4PWsxtoKToc",
+            authDomain: "avalon-d9d58.firebaseapp.com",
+            projectId: "avalon-d9d58",
+            storageBucket: "avalon-d9d58.appspot.com",
+            messagingSenderId: "611193467185",
+            appId: "1:611193467185:web:df3ff6be2a80af2d038010"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
 
       // Get a reference to the database
       var database = firebase.database();
@@ -60,6 +73,7 @@
           name: name
         });
 
+        console.log(name);
         // Enable the start game button
         startGameButton.disabled = false;
       });
