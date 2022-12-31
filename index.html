@@ -1,23 +1,51 @@
-<!-- <!DOCTYPE html>
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
-</html> -->
-
 <html>
   <head>
-    <title>Chat</title>
+    <title>Avalon: The Resistance</title>
   </head>
   <body>
-    <div id="chat">
-      <div id="chat-log"></div>
-      <form id="chat-form">
-        <input type="text" id="chat-input" placeholder="Type your message here" />
-        <button type="submit">Send</button>
-      </form>
-    </div>
-    <script src="chat.js"></script>
+    <h1>Avalon: The Resistance</h1>
+    <div id="role-info"></div>
+    <button id="start-game-button">Start game</button>
+    <script>
+      // Get the start game button
+      const startGameButton = document.querySelector('#start-game-button');
+
+      // Get the role info element
+      const roleInfo = document.querySelector('#role-info');
+
+      // Define the roles and secret information
+      const roles = {
+        'Resistance': {},
+        'Spy': {},
+        'Merlin': {
+          'secret': 'Mordred'
+        },
+        'Perceval': {
+          'secret': 'Morgana'
+        },
+        'Assassin': {
+          'secret': 'Merlin'
+        }
+      };
+
+      // Set up an event listener for the start game button
+      startGameButton.addEventListener('click', () => {
+        // Generate a random role for the player
+        const role = getRandomRole();
+
+        // Display the role information
+        roleInfo.innerHTML = `Your role is: ${role}`;
+
+        // Display the secret information, if any
+        if (roles[role].secret) {
+          roleInfo.innerHTML += `<br>Your secret is: ${roles[role].secret}`;
+        }
+      });
+
+      function getRandomRole() {
+        // Replace this with your own logic for selecting a random role
+        return Object.keys(roles)[Math.floor(Math.random() * Object.keys(roles).length)];
+      }
+    </script>
   </body>
 </html>
