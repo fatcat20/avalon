@@ -1,0 +1,23 @@
+.ready-status.player-ready {
+    color: green;
+}
+
+.ready-status {
+    color: red;
+}
+
+.cards-container {
+    overflow: auto;
+}
+
+.cards-container div {
+    float: left;
+}
+
+.role-card img {
+    height: 100px;
+}
+
+.clear {
+    clear: both;
+}
